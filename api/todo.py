@@ -83,8 +83,8 @@ async def update_task(put_task_request: PutTaskRequest):
     return {"updated_task_id": put_task_request.task_id}
 
 
-@app.put("/update-all-tasks")
-async def update_all_task(user_id: str):
+@app.put("/complete-all-tasks/{user_id}")
+async def complete_all_task(user_id: str):
     table = _get_table()
 
     all_tasks = table.query(

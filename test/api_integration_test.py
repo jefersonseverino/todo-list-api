@@ -53,6 +53,17 @@ def test_can_update_task():
     assert get_task_response.json()["content"] == new_task_content
     assert get_task_response.json()["is_done"] == True
 
+def test_can_update_tasks():
+    user_id = f"user_{uuid4().hex}"
+    create_response_1 = create_task(user_id, "task 1")
+    create_response_2 = create_task(user_id, "task 2")
+    complete_all_tasks(user_id)
+    all_completed_tasks = list_all(user_id)
+
+    for task in all_completed_tasks:
+        # Task exist
+        assert task.status_code == 200
+        assert task.json()["is_done"] == True
 
 def test_can_delete_task():
     user_id = f"user_{uuid4().hex}"
@@ -86,6 +97,11 @@ def get_task(task_id: str) -> dict:
 def delete_task(task_id: str) -> dict:
     return requests.delete(f"{ENDPOINT}/delete-task/{task_id}")
 
+def list_all(user_id: str) -> dict:
+    return requests.get(f"{ENDPOINT}/list-tasks/{user_id}")
 
 def update_task(payload: dict) -> dict:
     return requests.put(f"{ENDPOINT}/update-task", json=payload)
+
+def complete_all_tasks(user_id: str) -> dict:
+    return requests.put(f"{ENDPOINT}/complete-all-tasks/{user_id}")
