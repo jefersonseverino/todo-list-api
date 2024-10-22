@@ -83,6 +83,23 @@ async def update_task(put_task_request: PutTaskRequest):
     return {"updated_task_id": put_task_request.task_id}
 
 
+@app.put("/update-all-tasks")
+async def update_all_task(user_id: str):
+    table = _get_table()
+
+    all_tasks = table.query(
+        IndexName="user-index",
+        KeyConditionExpression=Key("user-id").eq(user_id)
+    ).get("Items", [])
+
+    for task in all_tasks:
+        table.update_item(
+            Key={"task_id": task["task_id"]},
+            UpdateExpression="SET is_done = :is_done",
+            ExpressionAttributeValues={":is_done": True}
+        )
+    return {"message": "All tasks marked as complete"}
+
 @app.delete("/delete-task/{task_id}")
 async def delete_task(task_id: str):
     # Delete the task from the table.
